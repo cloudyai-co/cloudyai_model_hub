@@ -1,0 +1,46 @@
+{
+  "id": "acme-labs/nimbus-7b-instruct",
+  "author": "acme-labs",
+  "sha": "abcdef1234567890",
+  "lastModified": "2026-02-01T00:00:00.000Z",
+  "createdAt": "2025-11-01T00:00:00.000Z",
+  "private": false,
+  "gated": false,
+  "downloads": 152300,
+  "downloadsAllTime": 980000,
+  "likes": 412,
+  "library_name": "transformers",
+  "pipeline_tag": "text-generation",
+  "tags": ["text-generation", "conversational", "pytorch", "safetensors"],
+  "cardData": {
+    "license": "apache-2.0",
+    "datasets": ["acme-labs/nimbus-pretrain-mix", "acme-labs/nimbus-instruct-mix"],
+    "language": ["en"],
+    "model-index": [
+      {
+        "name": "nimbus-7b-instruct",
+        "results": [
+          {
+            "task": {"type": "text-generation"},
+            "dataset": {"name": "MMLU", "type": "mmlu"},
+            "metrics": [{"type": "accuracy", "name": "accuracy", "value": 64.2}]
+          }
+        ]
+      }
+    ]
+  },
+  "safetensors": {
+    "parameters": {"BF16": 7241732096},
+    "total": 7241732096
+  },
+  "config": {
+    "model_type": "nimbus",
+    "architectures": ["NimbusForCausalLM"],
+    "hidden_size": 4096,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 11008,
+    "vocab_size": 32000
+  }
+}

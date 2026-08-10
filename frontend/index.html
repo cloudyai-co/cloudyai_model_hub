@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CloudyAI Model Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">◐</span>
+      <span class="brand-name">CloudyAI<br /><span class="brand-sub">Model Hub</span></span>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="#dashboard" class="nav-link active" data-view="dashboard"><span class="nav-icon" aria-hidden="true">▦</span>Dashboard</a>
+      <a href="#selection" class="nav-link" data-view="selection"><span class="nav-icon" aria-hidden="true">◆</span>Model Selection</a>
+      <a href="#aibom" class="nav-link" data-view="aibom"><span class="nav-icon" aria-hidden="true">▤</span>AIBOM Generator</a>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="status-dot status-ok" aria-hidden="true"></span>
+      <span id="api-status-text">Checking API…</span>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <section id="view-dashboard" class="view">
+      <header class="page-header">
+        <h1>Model Hub</h1>
+        <p class="page-subtitle">Pick the right Hugging Face model for your hardware, and generate a standards-compliant AIBOM for it.</p>
+      </header>
+
+      <div class="card-grid">
+        <button class="panel action-card" data-goto="selection" type="button">
+          <div class="action-icon" aria-hidden="true">◆</div>
+          <h2>Model Selection</h2>
+          <p>Search Hugging Face, then estimate memory footprint, hardware fit, throughput, and operational complexity across quantization levels.</p>
+          <span class="action-link">Open Model Selection →</span>
+        </button>
+        <button class="panel action-card" data-goto="aibom" type="button">
+          <div class="action-icon" aria-hidden="true">▤</div>
+          <h2>AIBOM Generator</h2>
+          <p>Enter a model id or URL to generate a CycloneDX AI Bill of Materials, with a documentation completeness score.</p>
+          <span class="action-link">Open AIBOM Generator →</span>
+        </button>
+      </div>
+
+      <div class="panel info-panel">
+        <h3>What's an AIBOM?</h3>
+        <p>An AI Bill of Materials is a structured inventory of what goes into a model — architecture, training data, licenses, evaluation results, known limitations. It's the AI-supply-chain equivalent of an SBOM: the same idea, applied to models instead of packages, so security, compliance, and provenance questions have a real answer instead of a shrug.</p>
+      </div>
+    </section>
+
+    <section id="view-selection" class="view hidden">
+      <header class="page-header">
+        <h1>Model Selection</h1>
+        <p class="page-subtitle">Search Hugging Face, then check what it costs to run.</p>
+      </header>
+
+      <div class="panel">
+        <form id="selection-search-form" class="inline-form">
+          <input id="selection-search-input" type="text" placeholder="Search Hugging Face — e.g. “llama instruct”, “whisper”, “embeddings”" autocomplete="off" />
+          <button type="submit" class="btn-primary">Search</button>
+        </form>
+        <div id="selection-results" class="results-list"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Or check a specific model</h3>
+        <form id="requirements-form" class="inline-form inline-form-wrap">
+          <input id="requirements-model-input" type="text" placeholder="organization-or-username/model-name" autocomplete="off" />
+          <select id="dtype-select" aria-label="Quantization"></select>
+          <input id="context-length-input" type="number" value="4096" min="256" step="256" title="Context length (tokens)" aria-label="Context length" />
+          <input id="batch-size-input" type="number" value="1" min="1" step="1" title="Batch size" aria-label="Batch size" />
+          <button type="submit" class="btn-primary">Analyze</button>
+        </form>
+      </div>
+
+      <div id="requirements-panel" class="panel hidden">
+        <p id="requirements-status" class="status"></p>
+        <div id="requirements-body" class="hidden">
+          <h3 id="requirements-model-title" class="mono"></h3>
+          <p id="requirements-param-count" class="mono-note"></p>
+
+          <div class="memory-breakdown">
+            <div class="memory-bar" id="memory-bar"></div>
+            <div id="memory-legend" class="memory-legend"></div>
+          </div>
+
+          <h4>Recommended hardware</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Accelerator</th><th>VRAM</th><th>GPUs needed</th><th>Interconnect</th><th>Est. tokens/sec (single stream)</th></tr>
+              </thead>
+              <tbody id="requirements-hardware-table"></tbody>
+            </table>
+          </div>
+          <p class="fine-print">Single-stream throughput is a memory-bandwidth-bound ceiling, not aggregate system throughput — continuous-batching servers (vLLM, TGI, etc.) push total tokens/sec well past this by serving many requests at once.</p>
+
+          <h4>Operational complexity</h4>
+          <div id="requirements-complexity" class="complexity-panel"></div>
+
+          <div id="requirements-alternatives-wrap" class="hidden">
+            <h4>Alternatives worth a look</h4>
+            <div id="requirements-alternatives" class="results-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-aibom" class="view hidden">
+      <header class="page-header">
+        <h1>AIBOM Generator</h1>
+        <p class="page-subtitle">CycloneDX 1.6 AI Bill of Materials for any public Hugging Face model.</p>
+      </header>
+
+      <div class="panel">
+        <form id="aibom-form" class="inline-form">
+          <input id="aibom-model-input" type="text" placeholder="organization-or-username/model-name — or paste a Hugging Face URL" autocomplete="off" />
+          <button type="submit" class="btn-primary">Generate AIBOM</button>
+        </form>
+        <p id="aibom-status" class="status"></p>
+      </div>
+
+      <div id="aibom-results" class="hidden">
+        <div class="panel score-panel">
+          <div class="score-ring" id="completeness-ring"><span id="completeness-score">0%</span></div>
+          <div class="score-details">
+            <h3>Documentation completeness</h3>
+            <div id="completeness-breakdown" class="check-list"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header-row">
+            <h3>CycloneDX AIBOM</h3>
+            <div class="btn-group">
+              <button id="aibom-copy-btn" class="btn-secondary" type="button">Copy JSON</button>
+              <button id="aibom-download-btn" class="btn-secondary" type="button">Download</button>
+            </div>
+          </div>
+          <pre class="json-viewer"><code id="aibom-json"></code></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/selection.js"></script>
+<script src="js/aibom.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
