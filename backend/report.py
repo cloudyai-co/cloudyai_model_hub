@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import io
 import json
+import math
 import re
 from datetime import UTC, datetime
 from pathlib import Path
@@ -729,6 +730,24 @@ def _architecture(bom: dict[str, Any], styles: dict[str, Any]) -> list[Any]:
     return flow
 
 
+def _display_value(value: str) -> str:
+    """Shorten a long decimal to four significant figures for print.
+
+    Short values are kept as the card publishes them. The embedded JSON always keeps the full value.
+    """
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return value
+    if not math.isfinite(number) or len(value) <= 8:
+        return value
+    if abs(number) < 1:
+        return f"{number:.4g}"
+    integer_digits = len(str(int(abs(number))))
+    decimals = max(0, 4 - integer_digits)
+    return f"{number:.{decimals}f}"
+
+
 def _evaluation(component: dict[str, Any], styles: dict[str, Any], width: float) -> list[Any]:
     from reportlab.platypus import Paragraph, Spacer
 
@@ -747,7 +766,7 @@ def _evaluation(component: dict[str, Any], styles: dict[str, Any], width: float)
             [
                 Paragraph(_markup(metric.get("slice") or "unspecified"), styles["cell"]),
                 Paragraph(_markup(metric.get("type", "metric"), "CloudyMono"), styles["cell_mono"]),
-                Paragraph(_markup(metric.get("value", "")), styles["cell"]),
+                Paragraph(_markup(_display_value(str(metric.get("value", "")))), styles["cell"]),
             ]
         )
     flow: list[Any] = [

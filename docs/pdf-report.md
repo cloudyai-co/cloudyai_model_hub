@@ -17,7 +17,7 @@ The report is generated from the same data as the JSON AIBOM and the completenes
 | **01 Identity** | Id, organisation, task, architecture family and model architecture, the access mode, and the Hub links. |
 | **02 Licence** | The licence as declared (SPDX identifier or named licence), with its link where one is given. |
 | **03 Architecture and data** | Parameter count and its source, weight dtypes, context length, base model, and the training datasets. |
-| **04 Evaluation results** | The `model-index` metrics, as published on the card. Up to 40 rows appear in the PDF. Any others are listed in the embedded JSON. |
+| **04 Evaluation results** | The `model-index` metrics, as published on the card. Long values are shown to four significant figures, and the embedded JSON keeps the full value. Up to 40 rows appear in the PDF. Any others are listed in the embedded JSON. |
 | **05 Considerations** | Intended use, limitations and risks, ethical considerations, and intended users, as stated in the model card. |
 | **06 Files and digests** | A table of repository files with the path, role, size and SHA-256 digest where the Hub publishes one. Up to 60 rows appear in the PDF. The rest are listed in the embedded JSON. |
 | **07 Completeness checklist** | The twelve checks, their weights, and whether each is present. |

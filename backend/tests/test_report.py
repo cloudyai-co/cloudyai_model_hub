@@ -14,7 +14,7 @@ from pypdf import PdfReader
 
 from backend import __version__
 from backend.aibom import build_aibom
-from backend.report import _markup, _safe_text, render_report_pdf, report_filename
+from backend.report import _display_value, _markup, _safe_text, render_report_pdf, report_filename
 from backend.tests.support import load_fixture
 
 GENERATED_AT = datetime(2026, 10, 9, 12, 0, 0, tzinfo=UTC)
@@ -160,3 +160,35 @@ def test_rendering_does_not_modify_the_bom() -> None:
     snapshot = copy.deepcopy(bom)
     render_report_pdf(bom, completeness)
     assert bom == snapshot
+
+
+@pytest.mark.parametrize(
+    ("raw", "shown"),
+    [
+        ("62.030716723549485", "62.03"),
+        ("9.66243708053691", "9.662"),
+        ("12345.678901", "12346"),
+        ("0.000123456789", "0.0001235"),
+        ("0.906", "0.906"),
+        ("7.34", "7.34"),
+        ("unknown", "unknown"),
+    ],
+)
+def test_long_metric_values_are_shortened_for_print(raw: str, shown: str) -> None:
+    assert _display_value(raw) == shown
+
+
+def test_zephyr_evaluation_table_shows_short_values() -> None:
+    data = load_fixture("zephyr-7b-beta")
+    bom, completeness = build_aibom(
+        data["info"]["id"],
+        data["info"],
+        data["readme"],
+        data["config"],
+        data["files"],
+        generated_at=GENERATED_AT,
+        serial_number=SERIAL,
+    )
+    text = _normalise(_text(render_report_pdf(bom, completeness)))
+    assert "62.03" in text
+    assert "62.03071672" not in text
