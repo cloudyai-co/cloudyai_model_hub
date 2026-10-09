@@ -27,8 +27,8 @@ FastAPI application: backend/main.py
 
 ### AIBOM and completeness: `GET /api/aibom/generate`
 
-1. `main.py` validates the `model` parameter (at most 200 characters).
-2. `hf_client.normalize_model_id()` turns the input into a canonical `org/name` id. Invalid input returns `400` before any network call.
+1. FastAPI validates the `model` parameter (at most 200 characters, otherwise `422`).
+2. `hf_client.normalize_model_id()` turns the input into a canonical `org/name` id. It rejects input longer than 140 characters and any other invalid input with `400`, before any network call.
 3. `fetch_bundle()` fetches the model metadata first. That request is required, and its answer decides whether the model exists. It then fetches the raw README, the raw `config.json` and the recursive file tree (at most 10 pages) in parallel. If one of those fails, the BOM is still built without that part, and the completeness score reflects the gap.
 4. `build_aibom()` assembles the CycloneDX document. `score_completeness()` evaluates the twelve checks.
 5. The response is `{model_id, aibom, completeness}`.

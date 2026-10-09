@@ -13,10 +13,10 @@ The report is generated from the same data as the JSON AIBOM and the completenes
 
 | Part | Contents |
 |---|---|
-| **Cover** | The model name and organisation, the version (commit), the completeness score and rating, a description of up to 420 characters, and the key facts. |
-| **01 Identity** | Id, organisation, task, architecture family and model architecture, the access mode, and the Hub links. |
+| **Cover** | The model name and id, the completeness score and rating with a ruler, a description of up to 420 characters (shortened with an ellipsis), the key facts, the serial number and generation time, and the list of sections. |
+| **01 Identity** | The model id, publisher, commit, library, access mode, creation and last-modified dates, downloads, likes and the repository link. |
 | **02 Licence** | The licence as declared (SPDX identifier or named licence), with its link where one is given. |
-| **03 Architecture and data** | Parameter count and its source, weight dtypes, context length, base model, and the training datasets. |
+| **03 Architecture and data** | Task, architecture, model family, context length, parameter count, weight dtypes, base model, and the training and evaluation datasets. |
 | **04 Evaluation results** | The `model-index` metrics, as published on the card. Long values are shown to four significant figures, and the embedded JSON keeps the full value. Up to 40 rows appear in the PDF. Any others are listed in the embedded JSON. |
 | **05 Considerations** | Intended use, limitations and risks, ethical considerations, and intended users, as stated in the model card. |
 | **06 Files and digests** | A table of repository files with the path, role, size and SHA-256 digest where the Hub publishes one. Up to 60 rows appear in the PDF. The rest are listed in the embedded JSON. |
@@ -52,7 +52,7 @@ print(bom["specVersion"], bom["metadata"]["component"]["name"])
 
 ## File name
 
-The download name is built from the model id: `report_filename()` replaces every character outside `A–Z a–z 0–9 . _ -` with `-`, and appends `-aibom.pdf`. For example, `Qwen/Qwen2.5-7B-Instruct` becomes `Qwen-Qwen2.5-7B-Instruct-aibom.pdf`.
+The download name is built from the model id: `report_filename()` replaces each run of characters outside `A–Z a–z 0–9 . _ -` with a single `-`, trims stray separators, and appends `-aibom.pdf`. For example, `Qwen/Qwen2.5-7B-Instruct` becomes `Qwen-Qwen2.5-7B-Instruct-aibom.pdf`.
 
 ## Size and speed
 

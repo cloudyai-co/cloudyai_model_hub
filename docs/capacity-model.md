@@ -94,7 +94,7 @@ The figures are the catalogue values in `backend/capacity.py`. Check the vendor'
 For each accelerator:
 
 - **GPUs needed** = `max(1, ceil(total_gb ÷ VRAM))`.
-- **Interconnect note.** One GPU: none needed. Two to eight GPUs on one node: NVLink or NVSwitch preferred, PCIe workable at lower throughput. More than eight: multi-node InfiniBand or RoCE.
+- **Interconnect note**, returned as `interconnect_required`. One GPU: `None needed: fits on one GPU`. Two to eight GPUs on one node: `Intra-node: NVLink/NVSwitch preferred, PCIe workable at lower throughput`. More than eight: `Multi-node: needs InfiniBand or RoCE for acceptable throughput`.
 - **Throughput ceiling.** `memory bandwidth ÷ (weights_gb ÷ GPUs needed)`, in tokens per second. This is the rate at which one request stream can decode if every token reads all the weights once.
 
 Results are sorted by GPUs needed (fewest first), then by VRAM (largest first).
@@ -103,24 +103,26 @@ Results are sorted by GPUs needed (fewest first), then by VRAM (largest first).
 
 ## Operational complexity
 
-The rating is a transparent heuristic. It is not a certification. It starts at Low and moves up to the highest level triggered by any rule. Every triggered rule adds its reason to the list.
+The rating is a transparent heuristic, not a certification. The level starts at Low and moves up to the highest level that any rule triggers. Every triggered rule adds a reason, and the reasons matter most. The memory rules use the total estimated memory for the chosen precision, context length and batch size. The API returns each reason with the exact wording below.
 
-| Condition | Minimum level | Reason shown |
+| Condition | Level at least | Reason returned by the API |
 |---|---|---|
-| Total memory above 640 GB | Very High | Extremely large memory footprint: multi-node serving required. |
-| Total memory above 160 GB | High | Large memory footprint: needs multiple high-end data-centre GPUs. |
-| Total memory above 48 GB | Medium | Moderate memory footprint: needs a data-centre GPU or several GPUs. |
-| Gated repository | Medium | Access must be requested and approved on Hugging Face. |
-| Multi-modal pipeline (image-text, video, audio or any-to-any) | Medium | An extra pre- and post-processing stack is required. |
-| Custom modelling code (`custom_code` tag or `auto_map` in the config) | High | Requires `trust_remote_code`: extra security review needed. |
-| Mixture-of-experts architecture | High | Uneven memory and compute: needs MoE-aware serving. |
-| Licence outside MIT, Apache-2.0, BSD-2-Clause and BSD-3-Clause | No change | The licence may carry usage restrictions. Review before production use. |
+| Total memory above 640 GB | Very High | `Extremely large memory footprint (>640GB): multi-node serving required` |
+| Total memory above 160 GB | High | `Large memory footprint (>160GB): needs multiple high-end data-center GPUs` |
+| Total memory above 48 GB | Medium | `Moderate memory footprint (>48GB): needs a data-center-class GPU or multiple GPUs` |
+| `gated` is `auto` or `manual` | Medium | `Gated repository: access must be requested and approved on Hugging Face` |
+| `pipeline_tag` contains `image-text`, `video`, `audio` or `any-to-any` | Medium | `Multi-modal pipeline: an additional pre- and post-processing stack is required` |
+| A `custom_code` tag, or `auto_map` in `config.json` | High | `Requires custom modeling code (trust_remote_code): extra security review needed` |
+| `model_type` contains `moe`, the architecture is Mixtral, or `num_local_experts` is set | High | `Mixture-of-experts architecture: uneven memory and compute, needs MoE-aware serving` |
+| A licence outside MIT, Apache-2.0, BSD-2-Clause and BSD-3-Clause | No change | `License '<id>' may carry usage restrictions: review before production use` |
 
-If no rule applies, the reason is "No unusual deployment requirements detected". The licence rule adds a reason but does not change the level, so a restrictive licence is visible without being overstated.
+In the licence reason, `<id>` is the licence identifier from the card, in lower case.
+
+If no rule applies, the only reason is `No unusual deployment requirements detected`. The licence rule adds a reason but does not change the level, so a restrictive licence is visible without overstating the rating.
 
 ## Alternatives
 
-The app searches the Hub for models with the same `model_type` and lists up to five of them, excluding the model you asked about. The list is for orientation only. It does not compare quality, licence, size or fit.
+The app runs a Hub search for the model's `model_type` and lists up to five results, excluding the model you asked about. The search is a text search, so the results are related models rather than an exact filter. The list is for orientation only. It does not compare quality, licence, size or fit.
 
 ## Limitations
 

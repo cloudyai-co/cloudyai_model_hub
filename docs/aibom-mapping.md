@@ -13,7 +13,7 @@ This page explains how the AIBOM is built: which Hugging Face field becomes whic
 | `metadata.tools.components` | One `application` named `cloudyai-aibom-generator`, with the app version. |
 | `metadata.component` | The model, as a `machine-learning-model` component (see below). |
 | `components` | One `file` component per repository file, up to 200. |
-| `dependencies` | The model depends on each file component. Present only when the file tree is available. |
+| `dependencies` | The model depends on each file component. Present only when the file tree lists at least one file. |
 
 Sources: the Hub model endpoint (`/api/models/{id}`), the raw README and `config.json` files (`/{id}/raw/main/...`), and the recursive file tree (`/api/models/{id}/tree/main?recursive=true`).
 
@@ -25,14 +25,14 @@ Sources: the Hub model endpoint (`/api/models/{id}`), the raw README and `config
 | `sha` (commit) | `version` | First 12 characters of the commit SHA, or `main` when no commit is known. The full SHA is in `hf:commitSha`. |
 | Card `description`, or the first paragraph of the README | `description` | Truncated to 1,000 characters. |
 | `license`, card `license`, or `license:*` tags | `licenses` | An SPDX id when the value is a known SPDX identifier, such as `apache-2.0` or `mit` (case-sensitive in the schema). Otherwise a named licence. A licence URL is kept when the card gives a public one. |
-| Organisation | `supplier` | The publishing organisation, when the repository belongs to one. |
-| Card `license_link` | `externalReferences` (type `license`) | Only public HTTP(S) links are kept. |
+| Author or organisation | `supplier` | The `author` field, or the organisation name when there is no author, with its huggingface.co URL. |
+| Card `license_link` | `externalReferences` (type `license`) | Only links that start with `http://` or `https://` are kept. |
 | Model page, tree and README | `externalReferences` (types `website`, `distribution`, `documentation`) | Links to huggingface.co. |
 | `pipeline_tag` | `modelCard.modelParameters.task` | |
 | `config.model_type` | `modelCard.modelParameters.architectureFamily` | |
 | `config.architectures[0]` | `modelCard.modelParameters.modelArchitecture` | |
 | Card `datasets` | `modelCard.modelParameters.datasets` | Each entry has `type: dataset` and `name`. Names of the form `org/name` also get `contents.url`. At most 25 entries. |
-| Card `model-index` metrics | `modelCard.quantitativeAnalysis.performanceMetrics` | Each entry has `type` (the metric name), `value` and `slice` (the dataset name). |
+| Card `model-index` metrics | `modelCard.quantitativeAnalysis.performanceMetrics` | Each entry has `type` (the metric's type, or its name when no type is given), `value` and `slice` (the dataset name). |
 | README intended-use sections | `modelCard.considerations.useCases` | Matched on headings such as "Intended uses", "Direct use" and "Out-of-scope use". |
 | README limitation sections | `modelCard.considerations.technicalLimitations` | Matched on headings with "limitation", "bias", "risks", "known issues" or "caveats". |
 | README ethics sections | `modelCard.considerations.ethicalConsiderations` | Matched on "ethical", "ethics", "responsible use", "misuse", "societal impact" or "safety considerations". |

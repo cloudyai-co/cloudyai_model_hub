@@ -7,7 +7,7 @@ The API lives under `/api`. Every endpoint is read-only and returns JSON, except
 
 ## Conventions
 
-- **Model ids.** Accepted as `org/name`, as a bare `name`, or as a `huggingface.co` model link with or without `https://` and `www.`. Links to datasets and Spaces are rejected with a message. A link to a file inside a model is accepted, and only the model part is used.
+- **Model ids.** Accepted as `org/name`, as a bare `name`, or as a `huggingface.co` or `hf.co` model link, with or without `https://` and `www.`. Input is limited to 140 characters. Links to datasets and Spaces are rejected with a message. A link to a file or branch inside a model is accepted, and only the model part is used.
 - **Errors.** Error responses have the shape `{"detail": "<message>"}`. The message is written for people and can be shown as it is.
 - **Caching.** Hub responses are cached in memory for `HUB_CACHE_TTL_SECONDS` (see [configuration.md](configuration.md)). The PDF endpoint sends `Cache-Control: no-store`. The JSON endpoints do not set cache headers.
 - **CORS.** Cross-origin GET, HEAD and OPTIONS requests are allowed from any origin. Credentials are not accepted, and the API uses no cookies.
@@ -64,7 +64,7 @@ Builds the AIBOM and the completeness score for one model.
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
-| `model` | string | yes | Model id or `huggingface.co` link. At most 200 characters. |
+| `model` | string | yes | Model id or `huggingface.co` link, at most 140 characters. |
 
 Response:
 
@@ -91,7 +91,7 @@ Response:
 The same AIBOM, rendered as a PDF report. It takes the same `model` parameter as `/api/aibom/generate`.
 
 - Content type: `application/pdf`.
-- `Content-Disposition: attachment; filename="<org>-<name>-aibom.pdf"`. The file name is built from the model id: every character outside `A–Z a–z 0–9 . _ -` becomes `-`, and the name is at most 120 characters before `-aibom.pdf`. For example, `Qwen/Qwen2.5-7B-Instruct` becomes `Qwen-Qwen2.5-7B-Instruct-aibom.pdf`.
+- `Content-Disposition: attachment; filename="<org>-<name>-aibom.pdf"`. The file name is built from the model id: each run of characters outside `A–Z a–z 0–9 . _ -` becomes a single `-`, and the name is at most 120 characters before `-aibom.pdf`. For example, `Qwen/Qwen2.5-7B-Instruct` becomes `Qwen-Qwen2.5-7B-Instruct-aibom.pdf`.
 - `Cache-Control: no-store`.
 - The CycloneDX JSON is attached inside the PDF as `aibom.cdx.json`. See [pdf-report.md](pdf-report.md).
 
@@ -151,10 +151,10 @@ Response (abbreviated, using Qwen2.5-7B-Instruct at `int4` with an 8192-token co
 
 | Status | When | Typical message |
 |---|---|---|
-| `400` | The model input is empty or too long, is not a Hugging Face link, points at a dataset or Space, or is not a valid id. | "That link points to a dataset, not a model. Paste a model link instead." |
+| `400` | The model input is empty, longer than 140 characters, not a Hugging Face link, a dataset or Space link, or not a valid id. | "That link points to a dataset, not a model. Paste a model link instead." |
 | `403` | The model is gated and the server's token does not have access. | Request access on Hugging Face, then set `HF_TOKEN` for an account that has it. |
 | `404` | No model has that id. | "No model named '…' was found on Hugging Face." |
-| `422` | A query parameter is out of range or unknown (FastAPI validation), or no parameter count is available for the model. | |
+| `422` | A query parameter is out of range or unknown, the model input is longer than 200 characters (FastAPI validation), or no parameter count is available for the model. | |
 | `429` | The Hub is rate limiting the server. | "Hugging Face is rate-limiting requests. Please wait a minute and retry." |
 | `502` | The Hub timed out, could not be reached, or returned an unexpected response. | "Hugging Face took too long to respond. Please try again." |
 
