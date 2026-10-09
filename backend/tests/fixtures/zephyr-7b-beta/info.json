@@ -1,0 +1,44 @@
+{
+  "_note": "Trimmed from the public Hugging Face model API response, captured 2026-10-09. Safetensors metadata and file tree are omitted on purpose, so the parameter count falls back to config.json.",
+  "id": "HuggingFaceH4/zephyr-7b-beta",
+  "modelId": "HuggingFaceH4/zephyr-7b-beta",
+  "author": "HuggingFaceH4",
+  "downloads": 91504,
+  "likes": 1852,
+  "gated": false,
+  "downloadsAllTime": 12900304,
+  "lastModified": "2024-10-16T11:48:13.000Z",
+  "createdAt": "2023-10-26T11:25:49.000Z",
+  "library_name": "transformers",
+  "pipeline_tag": "text-generation",
+  "tags": ["transformers", "pytorch", "safetensors", "mistral", "text-generation", "generated_from_trainer", "conversational", "en", "dataset:HuggingFaceH4/ultrachat_200k", "dataset:HuggingFaceH4/ultrafeedback_binarized", "arxiv:2305.18290", "arxiv:2310.16944", "arxiv:2305.14233", "arxiv:2310.01377", "base_model:mistralai/Mistral-7B-v0.1", "base_model:finetune:mistralai/Mistral-7B-v0.1", "license:mit", "model-index", "eval-results", "text-generation-inference", "endpoints_compatible", "deploy:sagemaker", "deploy:azure", "region:us"],
+  "cardData": {
+    "tags": ["generated_from_trainer"],
+    "license": "mit",
+    "datasets": ["HuggingFaceH4/ultrachat_200k", "HuggingFaceH4/ultrafeedback_binarized"],
+    "language": ["en"],
+    "base_model": "mistralai/Mistral-7B-v0.1",
+    "pipeline_tag": "text-generation"
+  },
+  "config": {
+    "architectures": ["MistralForCausalLM"],
+    "model_type": "mistral",
+    "tokenizer_config": {"bos_token": "", "eos_token": "", "pad_token": "", "unk_token": "", "use_default_system_prompt": true}
+  },
+  "model-index": [
+    {
+      "name": "zephyr-7b-beta",
+      "results": [
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "AI2 Reasoning Challenge (25-Shot)", "type": "ai2_arc", "config": "ARC-Challenge", "split": "test", "args": {"num_few_shot": 25}}, "metrics": [{"type": "acc_norm", "name": "normalized accuracy", "value": 62.03071672354948, "verified": false}], "source": {"name": "Open LLM Leaderboard", "url": "https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard?query=HuggingFaceH4/zephyr-7b-beta"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "HellaSwag (10-Shot)", "type": "hellaswag", "split": "validation", "args": {"num_few_shot": 10}}, "metrics": [{"type": "acc_norm", "name": "normalized accuracy", "value": 84.35570603465445, "verified": false}], "source": {"name": "Open LLM Leaderboard", "url": "https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard?query=HuggingFaceH4/zephyr-7b-beta"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "Drop (3-Shot)", "type": "drop", "split": "validation", "args": {"num_few_shot": 3}}, "metrics": [{"type": "f1", "name": "f1 score", "value": 9.66243708053691, "verified": false}], "source": {"name": "Open LLM Leaderboard", "url": "https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard?query=HuggingFaceH4/zephyr-7b-beta"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "TruthfulQA (0-shot)", "type": "truthful_qa", "config": "multiple_choice", "split": "validation", "args": {"num_few_shot": 0}}, "metrics": [{"type": "mc2", "value": 57.44916942762855, "verified": false}], "source": {"name": "Open LLM Leaderboard", "url": "https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard?query=HuggingFaceH4/zephyr-7b-beta"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "GSM8k (5-shot)", "type": "gsm8k", "config": "main", "split": "test", "args": {"num_few_shot": 5}}, "metrics": [{"type": "acc", "name": "accuracy", "value": 12.736921910538287, "verified": false}], "source": {"name": "Open LLM Leaderboard", "url": "https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard?query=HuggingFaceH4/zephyr-7b-beta"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "MMLU (5-Shot)", "type": "cais/mmlu", "config": "all", "split": "test", "args": {"num_few_shot": 5}}, "metrics": [{"type": "acc", "name": "accuracy", "value": 61.07, "verified": false}], "source": {"name": "Open LLM Leaderboard", "url": "https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard?query=HuggingFaceH4/zephyr-7b-beta"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "Winogrande (5-shot)", "type": "winogrande", "config": "winogrande_xl", "split": "validation", "args": {"num_few_shot": 5}}, "metrics": [{"type": "acc", "name": "accuracy", "value": 77.7426992896606, "verified": false}], "source": {"name": "Open LLM Leaderboard", "url": "https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard?query=HuggingFaceH4/zephyr-7b-beta"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "AlpacaEval", "type": "tatsu-lab/alpaca_eval"}, "metrics": [{"type": "unknown", "name": "win rate", "value": 0.906, "verified": false}], "source": {"url": "https://tatsu-lab.github.io/alpaca_eval/"}},
+        {"task": {"type": "text-generation", "name": "Text Generation"}, "dataset": {"name": "MT-Bench", "type": "unknown"}, "metrics": [{"type": "unknown", "name": "score", "value": 7.34, "verified": false}], "source": {"url": "https://huggingface.co/spaces/lmsys/mt-bench"}}
+      ]
+    }
+  ]
+}

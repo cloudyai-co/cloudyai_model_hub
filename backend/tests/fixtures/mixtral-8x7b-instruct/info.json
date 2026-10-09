@@ -1,0 +1,33 @@
+{
+  "_note": "Trimmed from the public Hugging Face model API response (expanded fields), captured 2026-10-09. chat_template removed. The repository has no pipeline_tag.",
+  "id": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+  "modelId": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+  "author": "mistralai",
+  "gated": false,
+  "downloadsAllTime": 23892663,
+  "lastModified": "2025-07-24T16:41:06.000Z",
+  "createdAt": "2023-12-10T18:47:12.000Z",
+  "library_name": "vllm",
+  "tags": ["vllm", "safetensors", "mixtral", "fr", "it", "de", "es", "en", "base_model:mistralai/Mixtral-8x7B-v0.1", "base_model:finetune:mistralai/Mixtral-8x7B-v0.1", "license:apache-2.0", "eval-results", "region:us"],
+  "cardData": {
+    "library_name": "vllm",
+    "language": ["fr", "it", "de", "es", "en"],
+    "license": "apache-2.0",
+    "base_model": "mistralai/Mixtral-8x7B-v0.1",
+    "inference": false,
+    "tags": ["vllm"]
+  },
+  "config": {
+    "architectures": ["MixtralForCausalLM"],
+    "model_type": "mixtral",
+    "num_experts_per_tok": 2,
+    "tokenizer_config": {"bos_token": "", "eos_token": "", "pad_token": null, "unk_token": "", "use_default_system_prompt": false}
+  },
+  "model-index": null,
+  "siblings": [
+    {"rfilename": ".gitattributes"}, {"rfilename": "README.md"}, {"rfilename": "config.json"}, {"rfilename": "consolidated.00.pt"},
+    {"rfilename": "model-00001-of-00019.safetensors"}, {"rfilename": "model.safetensors.index.json"},
+    {"rfilename": "tokenizer.json"}, {"rfilename": "tokenizer.model"}, {"rfilename": "tokenizer_config.json"}
+  ],
+  "safetensors": {"parameters": {"BF16": 46702792704}, "total": 46702792704}
+}

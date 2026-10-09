@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node tooling. Only the JavaScript checks use Node; nothing is bundled or shipped.
+node_modules/
+npm-debug.log*
+
+# Vercel CLI state
+.vercel/
+
+# Secrets and local settings. Never commit tokens.
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

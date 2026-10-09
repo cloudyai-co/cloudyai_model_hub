@@ -1,0 +1,42 @@
+{
+  "_note": "Trimmed from the public Hugging Face model API response (plain endpoint), captured 2026-10-09. chat_template removed.",
+  "id": "Qwen/Qwen2.5-7B-Instruct",
+  "modelId": "Qwen/Qwen2.5-7B-Instruct",
+  "author": "Qwen",
+  "sha": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "private": false,
+  "disabled": false,
+  "gated": false,
+  "downloads": 8105080,
+  "downloadsAllTime": 187568045,
+  "likes": 2417,
+  "pipeline_tag": "text-generation",
+  "library_name": "transformers",
+  "createdAt": "2024-09-16T11:55:40.000Z",
+  "lastModified": "2025-01-12T02:10:10.000Z",
+  "tags": ["transformers", "safetensors", "qwen2", "text-generation", "chat", "conversational", "en", "arxiv:2309.00071", "arxiv:2407.10671", "base_model:Qwen/Qwen2.5-7B", "base_model:finetune:Qwen/Qwen2.5-7B", "license:apache-2.0", "eval-results", "text-generation-inference", "endpoints_compatible", "deploy:sagemaker", "deploy:azure", "region:us"],
+  "cardData": {
+    "license": "apache-2.0",
+    "license_link": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/blob/main/LICENSE",
+    "language": ["en"],
+    "pipeline_tag": "text-generation",
+    "base_model": "Qwen/Qwen2.5-7B",
+    "tags": ["chat"],
+    "library_name": "transformers"
+  },
+  "config": {
+    "architectures": ["Qwen2ForCausalLM"],
+    "model_type": "qwen2",
+    "tokenizer_config": {"bos_token": null, "eos_token": "<|im_end|>", "pad_token": "<|endoftext|>", "unk_token": null}
+  },
+  "model-index": null,
+  "siblings": [
+    {"rfilename": ".gitattributes"}, {"rfilename": "LICENSE"}, {"rfilename": "README.md"}, {"rfilename": "config.json"},
+    {"rfilename": "generation_config.json"}, {"rfilename": "merges.txt"}, {"rfilename": "model-00001-of-00004.safetensors"},
+    {"rfilename": "model-00002-of-00004.safetensors"}, {"rfilename": "model-00003-of-00004.safetensors"},
+    {"rfilename": "model-00004-of-00004.safetensors"}, {"rfilename": "model.safetensors.index.json"},
+    {"rfilename": "tokenizer.json"}, {"rfilename": "tokenizer_config.json"}, {"rfilename": "vocab.json"}
+  ],
+  "safetensors": {"parameters": {"BF16": 7615616512}, "total": 7615616512},
+  "usedStorage": 15231271888
+}

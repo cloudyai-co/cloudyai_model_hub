@@ -1,0 +1,13 @@
+[
+  {"type": "file", "oid": "1f2e3d4c5b6a79880011223344556677889900aa", "size": 1519, "path": ".gitattributes"},
+  {"type": "file", "oid": "2a3b4c5d6e7f80911022334455667788990011bb", "size": 11357, "path": "LICENSE"},
+  {"type": "file", "oid": "3b4c5d6e7f8091a1233445566778899001122cc", "size": 6240, "path": "README.md"},
+  {"type": "file", "oid": "4c5d6e7f8091a2b3344556677889900112233dd", "size": 612, "path": "config.json"},
+  {"type": "file", "oid": "5d6e7f8091a2b3c4455667788990011223344ee", "size": 180, "path": "generation_config.json"},
+  {"type": "file", "oid": "6e7f8091a2b3c4d5566778899001122334455ff", "size": 1671839, "path": "tokenizer.json"},
+  {"type": "file", "oid": "7f8091a2b3c4d5e6677889900112233445566aa", "size": 7305, "path": "tokenizer_config.json"},
+  {"type": "file", "oid": "8091a2b3c4d5e6f7788990011223344556677bb", "size": 3865000000, "lfs": {"oid": "0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9", "size": 3865000000, "pointerSize": 135}, "path": "model-00001-of-00002.safetensors"},
+  {"type": "file", "oid": "91a2b3c4d5e6f8091990022334455667788990cc", "size": 3500000000, "lfs": {"oid": "1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9a0", "size": 3500000000, "pointerSize": 135}, "path": "model-00002-of-00002.safetensors"},
+  {"type": "file", "oid": "a2b3c4d5e6f8091a0a1001122334455667788dd", "size": 22000, "path": "model.safetensors.index.json"},
+  {"type": "directory", "oid": "b3c4d5e6f8091a2b0b2112233445566778899ee", "size": 0, "path": "onnx"}
+]

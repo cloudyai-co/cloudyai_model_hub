@@ -1,180 +1,277 @@
-"""
-CloudyAI Model Hub — backend.
+"""HTTP API and static frontend for the CloudyAI Model Hub.
 
-Serves the JSON API under /api/* and the static frontend (frontend/) at /.
+Routes under ``/api`` are declared before the static mount at ``/``. This order matters on Vercel,
+where the static files are served by the CDN and the API by the Python function.
 
-Run from the project root:
-    uvicorn backend.main:app --reload --port 8000
+Interactive API docs live at ``/api/docs`` and the OpenAPI document at ``/api/openapi.json``.
 """
 
 from __future__ import annotations
 
-import os
-import re
+import logging
 from pathlib import Path
+from typing import Annotated, Any, Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
-from . import hf_client
+from . import __version__
 from .aibom import build_aibom
-from .capacity import (
-    BYTES_PER_ELEMENT,
-    DTYPE_LABELS,
-    estimate_memory,
-    estimate_to_dict,
-    recommend_hardware,
-    score_operational_complexity,
-)
+from .capacity import BYTES_PER_ELEMENT, DTYPE_LABELS, build_requirements_report
+from .hf_client import HubError, ModelBundle, fetch_bundle, normalize_model_id, search_models
+from .report import render_report_pdf, report_filename
+from .settings import get_settings
 
-app = FastAPI(title="CloudyAI Model Hub", version="0.1.0")
+log = logging.getLogger("cloudyai.api")
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+
+#: Headers for HTML pages. API responses are JSON or PDF and are never rendered by a browser.
+SECURITY_HEADERS = {
+    "Content-Security-Policy": (
+        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+        "font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; "
+        "form-action 'self'; frame-ancestors 'none'"
+    ),
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+}
+
+Dtype = Literal[
+    "fp32",
+    "fp16",
+    "bf16",
+    "int8",
+    "int4",
+    "gptq_4bit",
+    "awq_4bit",
+    "gguf_q8_0",
+    "gguf_q4_k_m",
+    "gguf_q2_k",
+]
+
+ModelQuery = Annotated[
+    str,
+    Query(
+        max_length=200,
+        description="Model id (org/name) or a huggingface.co model link.",
+        examples=["Qwen/Qwen2.5-7B-Instruct"],
+    ),
+]
+
+TAGS_METADATA = [
+    {"name": "AIBOM", "description": "CycloneDX 1.6 ML-BOM (JSON) and PDF report for a Hugging Face model."},
+    {"name": "Capacity", "description": "Memory, hardware-fit and complexity estimates for serving a model."},
+    {"name": "Discovery", "description": "Search Hugging Face models."},
+    {"name": "Service", "description": "Health and reference data."},
+]
+
+app = FastAPI(
+    title="CloudyAI Model Hub API",
+    version=__version__,
+    summary="Generate AI Bills of Materials (AIBOMs) and capacity estimates for Hugging Face models.",
+    description=(
+        "Read-only API. Each request fetches public metadata from the Hugging Face Hub, and nothing is "
+        "stored. "
+        "Responses are cached in memory per warm instance, for up to 10 minutes by default.\n\n"
+        "Model ids look like `org/name`. Links such as `https://huggingface.co/org/name` are accepted too."
+    ),
+    docs_url="/api/docs",
+    redoc_url=None,
+    openapi_url="/api/openapi.json",
+    openapi_tags=TAGS_METADATA,
+    license_info={"name": "Apache-2.0", "identifier": "Apache-2.0"},
+)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["*"],
+    allow_methods=["GET", "HEAD", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
 )
 
-HF_TOKEN = os.environ.get("HF_TOKEN")
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next: Any) -> Response:
+    """Add page security headers. Only non-API paths get them (see vercel.json for the CDN)."""
+    response = await call_next(request)
+    if not request.url.path.startswith("/api"):
+        for name, value in SECURITY_HEADERS.items():
+            response.headers.setdefault(name, value)
+    return response
 
 
-@app.get("/api/health")
-async def health():
-    return {"status": "ok"}
+class HealthResponse(BaseModel):
+    status: str
+    version: str
 
 
-@app.get("/api/dtypes")
-async def dtypes():
-    return [{"id": k, "label": v} for k, v in DTYPE_LABELS.items()]
+class DtypeOption(BaseModel):
+    id: str
+    label: str
+    bytes_per_element: float
 
 
-@app.get("/api/models/search")
-async def search(q: str = Query(..., min_length=1), limit: int = 20):
-    try:
-        results = await hf_client.search_models(q, limit)
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Hugging Face search failed: {exc}")
-    return [
-        {
-            "id": m.get("id"),
-            "downloads": m.get("downloads", 0),
-            "likes": m.get("likes", 0),
-            "pipeline_tag": m.get("pipeline_tag"),
-            "library_name": m.get("library_name"),
-            "gated": bool(m.get("gated")),
-        }
-        for m in results
-    ]
+class SearchHit(BaseModel):
+    id: str
+    author: str | None = None
+    likes: int = 0
+    downloads: int = 0
+    pipeline_tag: str | None = None
+    library_name: str | None = None
+    tags: list[str] = []
+    created_at: str | None = None
 
 
-async def _load_model(model: str):
-    model_id = hf_client.normalize_model_id(model)
-    try:
-        info = await hf_client.fetch_model_info(model_id, HF_TOKEN)
-    except hf_client.HFNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
-    except hf_client.HFGatedError as exc:
-        raise HTTPException(status_code=403, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Couldn't reach Hugging Face: {exc}")
-    readme = await hf_client.fetch_readme(model_id, HF_TOKEN)
-    config = info.get("config")
-    return model_id, info, readme, config
+class SearchResponse(BaseModel):
+    query: str
+    results: list[SearchHit]
 
 
-@app.get("/api/aibom/generate")
-async def generate_aibom(model: str = Query(...)):
-    model_id, info, readme, config = await _load_model(model)
-    bom, completeness = build_aibom(model_id, info, readme, config)
-    return {"aibom": bom, "completeness": completeness}
+class AibomResponse(BaseModel):
+    model_id: str
+    aibom: dict[str, Any]
+    completeness: dict[str, Any]
 
 
-def _config_has_transformer_signal(config: dict) -> bool:
-    return bool(config) and any(
-        k in config for k in ("hidden_size", "n_embd", "d_model", "num_hidden_layers", "n_layer")
-    )
-
-
-def _estimate_params_from_config(config: dict) -> float:
-    """Rough parameter count for a standard decoder-only transformer.
-    Assumes SwiGLU-style MLP (gate/up/down); will over/under-shoot for
-    encoder-decoder, MoE, or otherwise non-standard architectures.
-    """
-    hidden = config.get("hidden_size") or config.get("d_model") or config.get("n_embd")
-    layers = config.get("num_hidden_layers") or config.get("n_layer")
-    inter = config.get("intermediate_size") or (hidden * 4 if hidden else None)
-    vocab = config.get("vocab_size") or 32000
-    attn_params = 4 * hidden * hidden
-    mlp_params = 3 * hidden * inter
-    embedding_params = vocab * hidden
-    return layers * (attn_params + mlp_params) + embedding_params
-
-
-@app.get("/api/requirements")
-async def requirements(
-    model: str = Query(...),
-    dtype: str = Query("fp16"),
-    context_length: int = Query(4096, ge=256, le=131072),
-    batch_size: int = Query(1, ge=1, le=256),
-):
-    if dtype not in BYTES_PER_ELEMENT:
-        raise HTTPException(status_code=400, detail=f"Unknown dtype '{dtype}'. Options: {list(BYTES_PER_ELEMENT)}")
-
-    model_id, info, readme, config = await _load_model(model)
-    config = config or {}
-    safetensors = info.get("safetensors") or {}
-    param_count = safetensors.get("total")
-    param_is_estimate = not bool(param_count)
-
-    if not param_count:
-        if _config_has_transformer_signal(config):
-            param_count = _estimate_params_from_config(config)
-        else:
-            raise HTTPException(
-                status_code=422,
-                detail=(
-                    "Not enough metadata to estimate parameters for this model — "
-                    "no safetensors info, and config.json doesn't look like a standard transformer."
-                ),
-            )
-
-    estimate = estimate_memory(
-        param_count=param_count,
-        dtype=dtype,
-        num_layers=config.get("num_hidden_layers"),
-        hidden_size=config.get("hidden_size"),
-        num_attention_heads=config.get("num_attention_heads"),
-        num_key_value_heads=config.get("num_key_value_heads"),
-        context_length=context_length,
-        batch_size=batch_size,
-    )
-    recommendations = recommend_hardware(estimate.weights_gb, estimate.total_gb)
-    complexity = score_operational_complexity(info, config, estimate.total_gb)
-
-    alternatives = []
-    try:
-        base_query = re.split(r"[-_]", model_id.split("/")[-1])[0]
-        candidates = await hf_client.search_models(base_query, limit=6)
-        alternatives = [
-            {"id": c.get("id"), "downloads": c.get("downloads", 0), "pipeline_tag": c.get("pipeline_tag")}
-            for c in candidates
-            if c.get("id") != model_id
-        ][:4]
-    except Exception:
-        alternatives = []
-
+def _search_hit(item: dict[str, Any]) -> dict[str, Any]:
+    model_id = item.get("id") or item.get("modelId") or ""
     return {
-        "model_id": model_id,
-        "param_count": param_count,
-        "param_count_is_estimate": param_is_estimate,
-        "estimate": estimate_to_dict(estimate),
-        "recommendations": recommendations,
-        "complexity": complexity,
-        "alternatives": alternatives,
+        "id": model_id,
+        "author": model_id.split("/")[0] if "/" in model_id else None,
+        "likes": int(item.get("likes") or 0),
+        "downloads": int(item.get("downloads") or 0),
+        "pipeline_tag": item.get("pipeline_tag"),
+        "library_name": item.get("library_name"),
+        "tags": [tag for tag in (item.get("tags") or []) if isinstance(tag, str)][:12],
+        "created_at": item.get("createdAt"),
     }
 
 
-FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
-app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+async def _load_model(model: str, *, include_files: bool = True) -> tuple[str, ModelBundle]:
+    """Validate the id, fetch the Hub data, and turn failures into HTTP errors."""
+    try:
+        model_id = normalize_model_id(model)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    try:
+        bundle = await fetch_bundle(model_id, get_settings().hf_token, include_files=include_files)
+    except HubError as exc:
+        log.info("Hub lookup failed for %s (%s)", model_id, exc.__class__.__name__)
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+    return model_id, bundle
+
+
+def _build(model_id: str, bundle: ModelBundle) -> tuple[dict[str, Any], dict[str, Any]]:
+    return build_aibom(model_id, bundle.info, bundle.readme, bundle.effective_config, bundle.files)
+
+
+@app.get("/api/health", response_model=HealthResponse, tags=["Service"], summary="Liveness check")
+async def health() -> dict[str, str]:
+    return {"status": "ok", "version": __version__}
+
+
+@app.get("/api/dtypes", response_model=list[DtypeOption], tags=["Service"], summary="Weight precisions")
+async def dtypes() -> list[dict[str, Any]]:
+    return [
+        {"id": key, "label": DTYPE_LABELS[key], "bytes_per_element": value}
+        for key, value in BYTES_PER_ELEMENT.items()
+    ]
+
+
+@app.get("/api/models/search", response_model=SearchResponse, tags=["Discovery"], summary="Search models")
+async def search(
+    q: Annotated[str, Query(min_length=2, max_length=100, description="Text to search for.")],
+    limit: Annotated[int, Query(ge=1, le=50, description="Maximum number of results (1 to 50).")] = 8,
+) -> dict[str, Any]:
+    query = q.strip()
+    try:
+        items = await search_models(query, limit, get_settings().hf_token)
+    except HubError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+    return {"query": query, "results": [_search_hit(item) for item in items]}
+
+
+@app.get(
+    "/api/aibom/generate",
+    response_model=AibomResponse,
+    tags=["AIBOM"],
+    summary="Generate an AIBOM (CycloneDX 1.6 JSON)",
+)
+async def generate_aibom(model: ModelQuery) -> dict[str, Any]:
+    model_id, bundle = await _load_model(model)
+    bom, completeness = _build(model_id, bundle)
+    return {"model_id": model_id, "aibom": bom, "completeness": completeness}
+
+
+@app.get(
+    "/api/aibom/report.pdf",
+    tags=["AIBOM"],
+    summary="Download the AIBOM as a PDF report",
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"application/pdf": {}},
+            "description": "PDF report. The CycloneDX JSON is attached as aibom.cdx.json.",
+        }
+    },
+)
+async def aibom_report(model: ModelQuery) -> Response:
+    model_id, bundle = await _load_model(model)
+    bom, completeness = _build(model_id, bundle)
+    pdf = render_report_pdf(bom, completeness)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{report_filename(model_id)}"',
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+@app.get("/api/requirements", tags=["Capacity"], summary="Estimate memory, hardware fit and complexity")
+async def requirements(
+    model: ModelQuery,
+    dtype: Annotated[Dtype, Query(description="Weight precision used for the estimate.")] = "fp16",
+    context_length: Annotated[
+        int, Query(ge=128, le=262144, description="Tokens of context per request.")
+    ] = 4096,
+    batch_size: Annotated[int, Query(ge=1, le=256, description="Concurrent sequences.")] = 1,
+) -> dict[str, Any]:
+    model_id, bundle = await _load_model(model, include_files=False)
+    try:
+        report = build_requirements_report(
+            bundle.info,
+            bundle.effective_config,
+            dtype=dtype,
+            context_length=context_length,
+            batch_size=batch_size,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    alternatives: list[dict[str, Any]] = []
+    family = str(bundle.effective_config.get("model_type") or "")
+    if family:
+        try:
+            related = await search_models(family, 6, get_settings().hf_token)
+        except HubError:
+            related = []
+        alternatives = [
+            _search_hit(item) for item in related if item.get("id") and item.get("id") != model_id
+        ][:5]
+
+    return {"model_id": model_id, **report, "alternatives": alternatives}
+
+
+if FRONTEND_DIR.is_dir():
+    # Mounted last so that /api routes take precedence. cdn = true in pyproject.toml lets Vercel
+    # serve these files from its CDN; locally, FastAPI serves them directly.
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

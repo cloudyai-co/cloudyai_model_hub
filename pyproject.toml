@@ -1,3 +1,80 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cloudyai-model-hub"
+version = "0.2.0"
+description = "Generate CycloneDX AI Bills of Materials (AIBOMs) and PDF reports for Hugging Face models, with capacity estimates."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+keywords = ["aibom", "cyclonedx", "ml-bom", "huggingface", "model-card", "sbom", "fastapi", "vercel"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: FastAPI",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+# These are the only runtime dependencies. Vercel installs them from this file.
+dependencies = [
+  "fastapi>=0.110,<1.0",
+  "httpx>=0.27,<1.0",
+  "pypdf>=5.0,<7.0",
+  "reportlab>=4.2,<6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "jsonschema>=4.20,<5.0",
+  "pytest>=8.0,<9.0",
+  "ruff>=0.6,<1.0",
+  "uvicorn[standard]>=0.29,<1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/cloudyai-co/cloudyai_model_hub"
+Repository = "https://github.com/cloudyai-co/cloudyai_model_hub"
+Issues = "https://github.com/cloudyai-co/cloudyai_model_hub/issues"
+Changelog = "https://github.com/cloudyai-co/cloudyai_model_hub/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+include = ["backend*"]
+exclude = ["backend.tests*"]
+
+[tool.setuptools.package-data]
+backend = ["assets/fonts/*"]
+
+# Vercel: the FastAPI app lives here. Static files under frontend/ are promoted to the CDN at build time.
+[tool.vercel]
+entrypoint = "backend.main:app"
+
+[tool.vercel.fastapi.static]
+cdn = true
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["backend/tests"]
+filterwarnings = [
+  # starlette.testclient suggests an optional 'httpx2' package. The suite uses the httpx pinned above.
+  "ignore:Using `httpx` with `starlette.testclient`",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = ["backend/tests/fixtures", "backend/tests/schemas"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF100"]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/tests/*" = ["E501"]
