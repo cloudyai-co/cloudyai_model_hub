@@ -213,3 +213,16 @@ export function routeLink(name, params, label) {
 export function subTitle(text) {
   return h("h4", { class: "sub-title" }, text);
 }
+
+/**
+ * A margin note in the author's voice: serif italic, like pencil in the edge of a printed sheet.
+ * Children may be strings or nodes, so callers can underline a phrase with the .squig class.
+ */
+export function handNote(children, { small = false } = {}) {
+  return h("p", { class: small ? "hand hand-sm" : "hand" }, ...(Array.isArray(children) ? children : [children]));
+}
+
+/** A rubber-stamp annotation: uppercase mono inside a doubled rule, set a touch off square. */
+export function inkStamp(text) {
+  return h("p", { class: "stamp" }, text);
+}

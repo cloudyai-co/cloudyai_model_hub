@@ -742,64 +742,383 @@ ol {
 
 /* ---------- Overview ---------- */
 
-.entries {
+/* The statement runs full width; the sheet below it is the hero visual. */
+.statement .display {
+  max-width: 24ch;
+}
+
+.statement .actions {
+  margin-top: 2.25rem;
+}
+
+/* Corner crop marks, like a sheet that came off a press. */
+.crop-marks {
+  position: absolute;
+  inset: 5px;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  pointer-events: none;
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+/* The opened specimen sheet, full width under the statement. */
+.sheet-open {
+  position: relative;
+  margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+  padding: 1.1rem 1.4rem 1.3rem;
+  border: 1px solid var(--ink);
+  background: var(--paper-raised);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 0;
-  border-top: 1px solid var(--ink);
-}
-
-.entry {
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
-  padding: 1.5rem 1.5rem 1.6rem 0;
-  border-bottom: 1px solid var(--rule);
+  transform: rotate(-0.2deg);
 }
 
-.entry + .entry {
-  padding-left: 1.5rem;
-  border-left: 1px solid var(--rule);
+.sheet-bar {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--ink);
+}
+
+.sheet-tag {
+  font: 500 0.7rem/1.3 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--signal-ink);
+}
+
+.sheet-id {
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.sheet-bar .badge {
+  margin-left: auto;
+}
+
+.sheet-score {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 2.5rem;
 }
 
 @media (max-width: 719px) {
-  .entry + .entry {
-    padding-left: 0;
-    border-left: 0;
+  .sheet-score {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+
+  .sheet-score .score-value {
+    font-size: 3.1rem;
   }
 }
 
-.entry-num {
-  font: 500 0.8rem/1 var(--font-mono);
-  color: var(--signal-ink);
-  letter-spacing: 0.08em;
+/* Spec strip: the specimen's facts as a masthead folio line, not a card. */
+.spec-strip {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--rule);
 }
 
-.entry h2 {
+.spec-strip > div {
+  flex: 1 1 130px;
+  padding: 0.85rem 1.25rem 0.1rem 0;
+}
+
+.spec-strip dt {
+  font: 500 0.66rem/1.4 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.spec-strip dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* Stripe-style data band: big numbers in a hairline row. */
+.band {
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  border-block: 1px solid var(--ink);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.band > div {
+  padding: 1.2rem 1.5rem 1.3rem 0;
+}
+
+.band > div + div {
+  border-left: 1px solid var(--rule);
+  padding-left: 1.5rem;
+}
+
+.band-value {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 1.4rem + 1.6vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.band-caption {
+  margin-top: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  max-width: 26ch;
+}
+
+@media (max-width: 900px) {
+  .band {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .band > div:nth-child(odd) {
+    padding-right: 1.25rem;
+  }
+
+  .band > div:nth-child(even) {
+    padding-left: 1.25rem;
+  }
+
+  .band > div:nth-child(n + 3) {
+    border-top: 1px solid var(--rule);
+  }
+}
+
+@media (max-width: 480px) {
+  .band {
+    grid-template-columns: 1fr;
+  }
+
+  .band > div + div {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+    padding-left: 0;
+  }
+}
+
+/* Instruments: alternating editorial rows, text against a real fragment. */
+.instrument {
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+
+.instrument-index {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+}
+
+.instrument-index::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--ink);
+}
+
+.instrument-grid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 980px) {
+  .instrument-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 4rem;
+  }
+
+  .instrument-flip .instrument-grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
+.instrument-copy {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.instrument-copy h3 {
   font-family: var(--font-serif);
   font-size: clamp(1.6rem, 1.2rem + 1vw, 2.1rem);
   letter-spacing: -0.01em;
 }
 
-.entry p {
+.instrument-copy p {
   color: var(--ink-2);
 }
 
-.entry ul {
+.instrument-copy ul {
   display: grid;
   gap: 0.35rem;
   font: 400 0.9rem/1.45 var(--font-mono);
   color: var(--ink-2);
 }
 
-.entry ul li::before {
+.instrument-copy ul li::before {
   content: "— ";
   color: var(--ink-3);
 }
 
-.entry .text-button {
-  margin-top: auto;
-  align-self: flex-start;
+.instrument-copy .text-button {
+  justify-self: start;
+}
+
+/* Fragments: clipped pieces of the real documents. */
+.frag {
+  position: relative;
+  padding: 1.1rem 1.3rem 1.2rem;
+  border: 1px solid var(--rule);
+  background: var(--paper-raised);
+  transform: rotate(0.25deg);
+}
+
+.instrument-flip .frag {
+  transform: rotate(-0.25deg);
+}
+
+.frag-tag {
+  font: 500 0.7rem/1.4 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 0.4rem;
+}
+
+.frag-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--rule-soft);
+  font-size: 0.92rem;
+}
+
+.frag-row > span:first-child {
+  flex: 1 1 auto;
+  color: var(--ink-2);
+}
+
+.frag-row .frag-note {
+  color: var(--ink-3);
+  font-size: 0.78rem;
+}
+
+.frag-check.is-present .mono {
+  color: var(--ok);
+}
+
+.frag-check.is-missing .mono {
+  color: var(--bad);
+}
+
+.frag-total {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0.3rem 0 0.5rem;
+}
+
+.frag .stack-bar {
+  margin: 0.2rem 0 0.55rem;
+}
+
+.frag-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  margin: 0 0 0.3rem;
+}
+
+.frag-legend span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.frag-legend .swatch {
+  width: 8px;
+  height: 8px;
+  margin-right: 0.4rem;
+}
+
+/* Margin notes as a letter: sticky rail, flowing notes. */
+.fieldnotes {
+  margin-top: clamp(3rem, 6vw, 5rem);
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .fieldnotes {
+    grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
+    gap: 4rem;
+  }
+
+  .fieldnotes-rail {
+    position: sticky;
+    top: 96px;
+    align-self: start;
+  }
+}
+
+.fieldnotes-rail {
+  border-top: 1px solid var(--ink);
+  padding-top: 0.9rem;
+}
+
+.fieldnotes-rail .section-num {
+  display: block;
+  margin-bottom: 0.4rem;
+  padding-top: 0;
+}
+
+.fieldnotes-body {
+  display: grid;
+  gap: 1.6rem;
+  max-width: 62ch;
+  align-content: start;
+}
+
+.fieldnote {
+  border-top: 1px solid var(--rule);
+  padding-top: 1rem;
+}
+
+.fieldnote:nth-child(odd) {
+  transform: rotate(-0.3deg);
+}
+
+.fieldnote:nth-child(even) {
+  transform: rotate(0.25deg);
+}
+
+.fieldnote-title {
+  font: 500 0.72rem/1.4 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.fieldnote .hand {
+  margin-top: 0.35rem;
+}
+
+.fieldnotes-sig {
+  text-align: right;
 }
 
 .service {
@@ -1494,76 +1813,6 @@ td.wrap-anywhere {
   margin-top: 1.25rem;
 }
 
-.hero {
-  display: grid;
-  gap: 3rem;
-  align-items: center;
-}
-
-@media (min-width: 980px) {
-  .hero {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    gap: 4rem;
-  }
-}
-
-.hero .actions {
-  margin-top: 2.25rem;
-}
-
-.specimen {
-  margin: 0;
-  display: grid;
-  gap: 1.1rem;
-  padding: 1.4rem 1.4rem 1.5rem;
-  border: 1px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--paper-raised);
-}
-
-.specimen-caption {
-  font: 500 0.72rem/1.3 var(--font-mono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-.specimen-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.6rem 1rem;
-}
-
-.specimen-title {
-  font: 400 0.95rem/1.4 var(--font-mono);
-  overflow-wrap: anywhere;
-}
-
-.specimen-rows {
-  margin: 0;
-  border-top: 1px solid var(--rule);
-}
-
-.specimen-rows > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.55rem 0;
-  border-bottom: 1px solid var(--rule-soft);
-  font-size: 0.92rem;
-}
-
-.specimen-rows dt {
-  color: var(--ink-3);
-}
-
-.specimen-rows dd {
-  margin: 0;
-  text-align: right;
-}
-
 .toc {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -1703,6 +1952,96 @@ td.wrap-anywhere {
 
 .link-list .row-actions {
   justify-content: flex-start;
+}
+
+/* ---------- Human layer: paper grain, margin voice, stamp ---------- */
+
+/* A faint press texture over the paper, from an inline SVG noise field. */
+body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+  }
+}
+
+:root[data-theme="dark"] body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+/* The margin voice: serif italic, a size too warm for the furniture. */
+.hand {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 52ch;
+}
+
+.hand-sm {
+  font-size: 0.95rem;
+}
+
+/* A pencil underline for the phrase that matters. */
+.squig {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--signal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+/* Rubber stamp: doubled rule, a touch off square. */
+.stamp {
+  display: inline-block;
+  margin: 0.4rem 0 0;
+  padding: 0.35em 0.75em;
+  border: 1px solid currentColor;
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
+  color: var(--signal-ink);
+  font: 500 0.68rem/1.4 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: rotate(-1.6deg);
+}
+
+/* Drop caps, like a printed page. */
+.lede::first-letter {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 2.9em;
+  line-height: 0.82;
+  float: left;
+  padding-right: 0.055em;
+  margin-top: 0.08em;
+  color: var(--ink);
+}
+
+.colophon-hand {
+  margin-bottom: 1.1rem;
+}
+
+.colophon .hand {
+  font-size: 0.95rem;
+  color: var(--ink-3);
+  max-width: none;
+}
+
+@media print {
+  body {
+    background-image: none;
+  }
+
+  .stamp,
+  .frag,
+  .sheet-open,
+  .fieldnote {
+    transform: none;
+  }
 }
 
 /* ---------- Print: the datasheet prints as a document ---------- */

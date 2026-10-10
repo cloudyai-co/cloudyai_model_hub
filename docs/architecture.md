@@ -80,6 +80,8 @@ The interface is laid out as an engineering datasheet, not as a dashboard.
 - **Type.** IBM Plex Serif for headings, IBM Plex Sans for text, and IBM Plex Mono for data and labels. The fonts are self-hosted WOFF2 files, each limited to a `unicode-range` subset.
 - **Structure.** Numbered sections (01, 02 and so on), hairline rules, tables with uppercase monospace headers, and the completeness ruler.
 - **Restraint.** No gradients, no decorative shadows, no emoji and no purple accents. Icons are inline SVG symbols from one sprite in `index.html`.
+- **Composition.** The front page avoids the stock hero-plus-card layout. It is an editorial sequence in which no two sections share a template: a full-width statement, an opened specimen sheet with crop marks, a hairline data band, alternating instrument rows built from real document fragments, and margin notes on a sticky rail.
+- **Margin voice.** A human layer keeps the sheet from reading as machine output: serif-italic margin notes, a wavy pencil underline, an ink stamp ("reads public data · nothing downloaded"), drop caps and a faint paper grain. Notes never carry required information, so the page stays scannable, and the stamp's claim is repeated in plain prose in the forms and the README.
 - **Accessibility.** Visible focus states, labelled controls, `role="alert"` for errors, `role="status"` for progress, and support for `prefers-reduced-motion`.
 
 ![The AIBOM datasheet in the dark theme](screenshots/aibom-dark.png)

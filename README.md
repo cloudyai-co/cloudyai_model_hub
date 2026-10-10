@@ -13,6 +13,7 @@ Generate CycloneDX 1.6 **AI Bills of Materials (AIBOMs)** for Hugging Face model
 - **PDF report.** A printable A4 version of the same AIBOM: a cover, eight numbered sections, a file digest table, the completeness checklist and verification notes. The CycloneDX JSON is attached inside the PDF as `aibom.cdx.json`. See [the PDF report guide](docs/pdf-report.md).
 - **Model selection.** Search Hugging Face, then estimate memory for ten weight precisions at any context length and batch size. Results show the accelerators that fit, GPU counts, a single-stream throughput ceiling, a complexity rating with reasons, and related models. See [the capacity model](docs/capacity-model.md).
 - **Datasheet interface.** The UI is styled as an engineering datasheet, with light and dark themes and no third-party requests from the browser. There is no frontend build step and no framework: the frontend is plain HTML, CSS and ES modules, served by the same backend.
+- **No account needed.** Everything reads public Hub metadata — model card, `config.json`, file list — and downloads nothing, so public models work with no token and no sign-in. `HF_TOKEN` is optional and only unlocks gated or private models.
 
 | Overview | Model selection | Mobile |
 |---|---|---|
@@ -31,7 +32,7 @@ cd cloudyai_model_hub
 Open <http://localhost:8000>. The first run creates `.venv` and installs the project in editable mode with its development extras. Later runs reuse the environment.
 
 - `./run.sh --offline` also starts a bundled fixture hub on port 8787 and points the app at it, so you can work without internet access. Only the four fixture models are available. See [backend/tests/fixtures/README.md](backend/tests/fixtures/README.md).
-- For gated or private models, export `HF_TOKEN` before you start the server. The token stays on the server and is never sent to the browser.
+- Public models need no token at all. For gated or private models, export `HF_TOKEN` before you start the server. The token stays on the server and is never sent to the browser.
 
 Manual setup, for example on Windows or in an existing environment:
 

@@ -13,6 +13,8 @@ import {
   dataTable,
   externalLink,
   factList,
+  handNote,
+  inkStamp,
   levelBadge,
   sectionHead,
   statusLine,
@@ -382,6 +384,7 @@ function scoreAside(completeness) {
       `${levelLabel(level)} documentation coverage. The score measures what is written down, not model quality, safety or legal compliance.`,
     ),
     checklist(breakdown),
+    handNote(["The missing lines are the point — they are what to ", h("span", { class: "squig" }, "ask the publisher"), " about."], { small: true }),
   );
 }
 
@@ -413,6 +416,7 @@ export function buildDatasheet({ model_id: modelId, aibom: bom, completeness }) 
         h("span", { class: "sep", "aria-hidden": "true" }, "·"),
         h("span", {}, `Generated ${formatTimestamp(bom.metadata?.timestamp)}`),
       ),
+      inkStamp("Reads public data · nothing downloaded"),
       actions({ modelId, bom, slug }),
     ),
     h(

@@ -3,7 +3,7 @@
 import { ApiError, getJson } from "../api.js";
 import { clear, h } from "../dom.js";
 import { navigate } from "../router.js";
-import { alertBox, button, chips, emptyNote, field, statusLine } from "../components/ui.js";
+import { alertBox, button, chips, emptyNote, field, handNote, statusLine } from "../components/ui.js";
 import { buildDatasheet } from "./datasheet.js";
 
 export const EXAMPLE_MODELS = [
@@ -72,7 +72,8 @@ function modelForm(model) {
       h(
         "p",
         { class: "field-hint", id: "model-input-hint" },
-        "Accepts org/name or a huggingface.co model link. Datasets and Spaces are not supported.",
+        "Accepts org/name or a huggingface.co model link. Public models need no token — if you can open " +
+          "the page without signing in, this can read it. Datasets and Spaces are not supported.",
       ),
     ),
     chips("Try", EXAMPLE_MODELS, (value) => navigate("aibom", { model: value })),
@@ -100,15 +101,16 @@ function idleState() {
     "div",
     { class: "idle" },
     emptyNote(
-      "Nothing is stored. Each datasheet is assembled from public Hub data when you ask for it, " +
-        "and the PDF carries the CycloneDX JSON as an attachment.",
+      "Paste an id above and the datasheet appears in a second or two. Nothing is stored between " +
+        "visits, and nothing is downloaded: the generator only reads what the Hub shows anyone.",
     ),
+    handNote(["Close the tab and it is gone. Only ", h("span", { class: "squig" }, "the report you keep"), " remains."], { small: true }),
     tableOfContents(),
   );
 }
 
 async function load(model, region, signal) {
-  region.replaceChildren(statusLine(`Reading ${model} from Hugging Face`, { busy: true }));
+  region.replaceChildren(statusLine(`Reading the public page for ${model} — card, config and file list`, { busy: true }));
   try {
     const data = await getJson("aibom/generate", { model }, { signal });
     if (signal.aborted) return;

@@ -25,6 +25,8 @@ All notable changes to this project are documented in this file. The format foll
 ### Changed
 
 - **The UI is redesigned** as an engineering datasheet, with numbered sections, hairline rules and an SVG icon sprite. The previous dark dashboard is gone.
+- **The front page is recomposed** as an editorial sequence instead of a hero-and-card grid: a full-width statement, an opened specimen sheet with crop marks, a hairline data band, alternating instrument rows built from real document fragments, and margin notes on a sticky rail. No two sections share a template.
+- **A human layer** runs through the interface: serif-italic margin notes, wavy pencil underlines, an ink stamp on the datasheet ("reads public data · nothing downloaded"), drop caps and a faint paper grain. The stamp's claim is repeated in plain prose in the form hints and the README, because the hub only reads public metadata and never downloads weights.
 - **Frontend code is organised as ES modules** (`frontend/js/` with `views/` and `components/`). The previous single-file scripts (`app.js`, `aibom.js`, `dashboard.js`, `selection.js`) and `css/style.css` were removed.
 - **Dependencies are declared only in `pyproject.toml`**. `backend/requirements.txt` and `backend/requirements-dev.txt` were removed.
 - **`run.sh` installs the project** with `pip install -e ".[dev]"` and starts uvicorn on port 8000.
