@@ -1,0 +1,15 @@
+{
+  "name": "cloudyai-model-hub-web",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Tooling for the zero-build frontend in frontend/: unit tests and syntax checks. Nothing here is bundled or shipped.",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/js/*.test.js\"",
+    "check": "node scripts/check-js.mjs"
+  }
+}

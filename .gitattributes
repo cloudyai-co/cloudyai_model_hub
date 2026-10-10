@@ -1,2 +1,10 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Binary assets must never be line-ending normalised or diffed as text.
+*.woff2 binary
+*.ttf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary

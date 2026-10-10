@@ -1,162 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CloudyAI Model Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-<div id="app-shell">
-  <aside class="sidebar">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">◐</span>
-      <span class="brand-name">CloudyAI<br /><span class="brand-sub">Model Hub</span></span>
-    </div>
-    <nav class="nav" aria-label="Primary">
-      <a href="#dashboard" class="nav-link active" data-view="dashboard"><span class="nav-icon" aria-hidden="true">▦</span>Dashboard</a>
-      <a href="#selection" class="nav-link" data-view="selection"><span class="nav-icon" aria-hidden="true">◆</span>Model Selection</a>
-      <a href="#aibom" class="nav-link" data-view="aibom"><span class="nav-icon" aria-hidden="true">▤</span>AIBOM Generator</a>
-    </nav>
-    <div class="sidebar-footer">
-      <span class="status-dot status-ok" aria-hidden="true"></span>
-      <span id="api-status-text">Checking API…</span>
-    </div>
-  </aside>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CloudyAI Model Hub</title>
+    <meta
+      name="description"
+      content="Generate CycloneDX 1.6 AI Bills of Materials (AIBOMs) and printable PDF reports for Hugging Face models, and estimate what a model needs to run."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f4f2ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-  <main class="content">
+    <!-- Icon sprite. Each symbol is drawn from the same 24 x 24 grid and is referenced by id from an SVG use element. -->
+    <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" /></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M6 12h12" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" /></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" /></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" /><path d="M5.5 15.5v-11h10" /></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4.5 12h14M13 6l6 6-6 6" /></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M13.5 4.5h6v6M19.5 4.5l-9 9M17.5 14v5.5h-13v-13h5.5" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5l4.5 4.5" /></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2.2M12 19.3v2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" /></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z" /><path d="M12 10v4.5M12 17.5v.5" /></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></symbol>
+      <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3.5h8l4.5 4.5v12.5H6z" /><path d="M14 3.5V8h4.5" /></symbol>
+      <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M6 3.5h8l4.5 4.5v12.5H6z" /><path d="M9 14.5h6M9 17.5h4M9 11.5h2" /></symbol>
+      <symbol id="i-hash" viewBox="0 0 24 24"><path d="M9.5 4l-2 16M16.5 4l-2 16M4.5 9h16M3.5 15h16" /></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.05-4.95M19 4.5v4h-4" /></symbol>
+    </svg>
 
-    <section id="view-dashboard" class="view">
-      <header class="page-header">
-        <h1>Model Hub</h1>
-        <p class="page-subtitle">Pick the right Hugging Face model for your hardware, and generate a standards-compliant AIBOM for it.</p>
-      </header>
-
-      <div class="card-grid">
-        <button class="panel action-card" data-goto="selection" type="button">
-          <div class="action-icon" aria-hidden="true">◆</div>
-          <h2>Model Selection</h2>
-          <p>Search Hugging Face, then estimate memory footprint, hardware fit, throughput, and operational complexity across quantization levels.</p>
-          <span class="action-link">Open Model Selection →</span>
+    <header class="masthead">
+      <div class="wrap masthead-inner">
+        <a class="brand" href="#/" aria-label="CloudyAI Model Hub: overview">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <rect x="2" y="2" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" />
+            <path d="M2 10h7M2 16h12M2 22h7" fill="none" stroke="currentColor" stroke-width="2" />
+            <rect class="brand-accent" x="21" y="13" width="9" height="6" />
+          </svg>
+          <span class="brand-name">CloudyAI <span>Model Hub</span></span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="#/" data-route="overview">Overview</a>
+          <a href="#/aibom" data-route="aibom">AIBOM</a>
+          <a href="#/selection" data-route="selection">Model selection</a>
+        </nav>
+        <button type="button" class="theme-toggle" id="theme-toggle" data-mode="light">
+          <svg class="icon icon-moon" aria-hidden="true" focusable="false"><use href="#i-moon" /></svg>
+          <svg class="icon icon-sun" aria-hidden="true" focusable="false"><use href="#i-sun" /></svg>
+          <span class="label">Dark</span>
         </button>
-        <button class="panel action-card" data-goto="aibom" type="button">
-          <div class="action-icon" aria-hidden="true">▤</div>
-          <h2>AIBOM Generator</h2>
-          <p>Enter a model id or URL to generate a CycloneDX AI Bill of Materials, with a documentation completeness score.</p>
-          <span class="action-link">Open AIBOM Generator →</span>
-        </button>
       </div>
+    </header>
 
-      <div class="panel info-panel">
-        <h3>What's an AIBOM?</h3>
-        <p>An AI Bill of Materials is a structured inventory of what goes into a model — architecture, training data, licenses, evaluation results, known limitations. It's the AI-supply-chain equivalent of an SBOM: the same idea, applied to models instead of packages, so security, compliance, and provenance questions have a real answer instead of a shrug.</p>
+    <main id="main" class="wrap view" tabindex="-1">
+      <p class="status" role="status">Loading</p>
+    </main>
+
+    <svg class="tickrule" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="ticks" width="10" height="14" patternUnits="userSpaceOnUse">
+          <path d="M0.5 0v14" stroke="currentColor" stroke-width="1" fill="none" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="10" fill="url(#ticks)" />
+      <line x1="0" x2="100%" y1="0.5" y2="0.5" stroke="currentColor" stroke-width="1" />
+    </svg>
+
+    <footer class="colophon">
+      <div class="wrap colophon-hand">
+        <p class="hand">Set in IBM Plex on paper-coloured pixels. Prints nicely on A4 — try it.</p>
       </div>
-    </section>
-
-    <section id="view-selection" class="view hidden">
-      <header class="page-header">
-        <h1>Model Selection</h1>
-        <p class="page-subtitle">Search Hugging Face, then check what it costs to run.</p>
-      </header>
-
-      <div class="panel">
-        <form id="selection-search-form" class="inline-form">
-          <input id="selection-search-input" type="text" placeholder="Search Hugging Face — e.g. “llama instruct”, “whisper”, “embeddings”" autocomplete="off" />
-          <button type="submit" class="btn-primary">Search</button>
-        </form>
-        <div id="selection-results" class="results-list"></div>
+      <div class="wrap colophon-inner">
+        <p>
+          CloudyAI Model Hub <span class="mono" id="app-version"></span> · Apache-2.0 · Built with love by
+          KhanKindle.
+        </p>
+        <p>
+          <a href="https://github.com/cloudyai-co/cloudyai_model_hub">Source</a> ·
+          <a href="api/docs">API reference</a> ·
+          <a href="https://github.com/cloudyai-co/cloudyai_model_hub/blob/main/docs/aibom-mapping.md"
+            >Field mapping</a
+          >
+          · Verify before compliance use.
+        </p>
       </div>
-
-      <div class="panel">
-        <h3>Or check a specific model</h3>
-        <form id="requirements-form" class="inline-form inline-form-wrap">
-          <input id="requirements-model-input" type="text" placeholder="organization-or-username/model-name" autocomplete="off" />
-          <select id="dtype-select" aria-label="Quantization"></select>
-          <input id="context-length-input" type="number" value="4096" min="256" step="256" title="Context length (tokens)" aria-label="Context length" />
-          <input id="batch-size-input" type="number" value="1" min="1" step="1" title="Batch size" aria-label="Batch size" />
-          <button type="submit" class="btn-primary">Analyze</button>
-        </form>
-      </div>
-
-      <div id="requirements-panel" class="panel hidden">
-        <p id="requirements-status" class="status"></p>
-        <div id="requirements-body" class="hidden">
-          <h3 id="requirements-model-title" class="mono"></h3>
-          <p id="requirements-param-count" class="mono-note"></p>
-
-          <div class="memory-breakdown">
-            <div class="memory-bar" id="memory-bar"></div>
-            <div id="memory-legend" class="memory-legend"></div>
-          </div>
-
-          <h4>Recommended hardware</h4>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Accelerator</th><th>VRAM</th><th>GPUs needed</th><th>Interconnect</th><th>Est. tokens/sec (single stream)</th></tr>
-              </thead>
-              <tbody id="requirements-hardware-table"></tbody>
-            </table>
-          </div>
-          <p class="fine-print">Single-stream throughput is a memory-bandwidth-bound ceiling, not aggregate system throughput — continuous-batching servers (vLLM, TGI, etc.) push total tokens/sec well past this by serving many requests at once.</p>
-
-          <h4>Operational complexity</h4>
-          <div id="requirements-complexity" class="complexity-panel"></div>
-
-          <div id="requirements-alternatives-wrap" class="hidden">
-            <h4>Alternatives worth a look</h4>
-            <div id="requirements-alternatives" class="results-list"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-aibom" class="view hidden">
-      <header class="page-header">
-        <h1>AIBOM Generator</h1>
-        <p class="page-subtitle">CycloneDX 1.6 AI Bill of Materials for any public Hugging Face model.</p>
-      </header>
-
-      <div class="panel">
-        <form id="aibom-form" class="inline-form">
-          <input id="aibom-model-input" type="text" placeholder="organization-or-username/model-name — or paste a Hugging Face URL" autocomplete="off" />
-          <button type="submit" class="btn-primary">Generate AIBOM</button>
-        </form>
-        <p id="aibom-status" class="status"></p>
-      </div>
-
-      <div id="aibom-results" class="hidden">
-        <div class="panel score-panel">
-          <div class="score-ring" id="completeness-ring"><span id="completeness-score">0%</span></div>
-          <div class="score-details">
-            <h3>Documentation completeness</h3>
-            <div id="completeness-breakdown" class="check-list"></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header-row">
-            <h3>CycloneDX AIBOM</h3>
-            <div class="btn-group">
-              <button id="aibom-copy-btn" class="btn-secondary" type="button">Copy JSON</button>
-              <button id="aibom-download-btn" class="btn-secondary" type="button">Download</button>
-            </div>
-          </div>
-          <pre class="json-viewer"><code id="aibom-json"></code></pre>
-        </div>
-      </div>
-    </section>
-
-  </main>
-</div>
-
-<script src="js/api.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/selection.js"></script>
-<script src="js/aibom.js"></script>
-<script src="js/app.js"></script>
-</body>
+    </footer>
+  </body>
 </html>
